@@ -159,6 +159,27 @@ class SpotifyClient:
         logger.info("Playlist creada: id=%s", playlist["id"])
         return playlist
 
+    def find_playlist_by_name(self, name):
+        """Busca una playlist PROPIA con ese nombre exacto. Devuelve el dict o None.
+
+        Pagina por todas las playlists del usuario y filtra por propietario para
+        no confundir con playlists que solo sigue.
+        """
+        offset = 0
+        while True:
+            pagina = _con_reintentos(
+                "listar tus playlists",
+                self._sp.current_user_playlists,
+                limit=50, offset=offset,
+            )
+            for pl in pagina.get("items", []):
+                if pl and pl.get("name") == name and pl["owner"]["id"] == self.user_id:
+                    return pl
+            if pagina.get("next"):
+                offset += 50
+            else:
+                return None
+
     def add_tracks(self, playlist_id, track_uris):
         """Añade canciones a la playlist (máx. 100 por llamada; aquí son 30)."""
         logger.info("Añadiendo %d canciones a la playlist…", len(track_uris))

@@ -54,6 +54,10 @@ class Command(BaseCommand):
             "--limit", type=int, default=30,
             help="Número de canciones a incluir (1-50, por defecto 30).",
         )
+        parser.add_argument(
+            "--force", action="store_true",
+            help="Crear la playlist aunque ya exista otra con el mismo nombre.",
+        )
 
     def handle(self, *args, **opts):
         mes, anio = self._resolver_mes(opts["month"], opts["year"])
@@ -71,9 +75,24 @@ class Command(BaseCommand):
             ))
             return
 
+        # La BBDD debe estar migrada; si no, el ExecutionLog final fallaría.
+        self._verificar_migraciones()
+
         playlist_id, playlist_url, track_count = "", "", 0
         try:
             cliente = SpotifyClient()
+
+            # Evitar duplicados: si ya existe una playlist con ese nombre, no creamos
+            # otra (salvo --force). Salida limpia, sin registrar fallo.
+            if not opts["force"]:
+                existente = cliente.find_playlist_by_name(etiqueta)
+                if existente:
+                    url = existente.get("external_urls", {}).get("spotify", "") or existente["id"]
+                    msg = (f"Ya existe una playlist '{etiqueta}' ({url}). "
+                           f"No se crea otra; usa --force para duplicarla.")
+                    logger.info(msg)
+                    self.stdout.write(self.style.WARNING(msg))
+                    return
 
             tracks = cliente.get_top_tracks(time_range="short_term", limit=limite)
             if not tracks:
@@ -140,6 +159,19 @@ class Command(BaseCommand):
         if not 1 <= limite <= 50:
             raise CommandError("--limit debe estar entre 1 y 50 (límite de la API de Spotify).")
         return limite
+
+    def _verificar_migraciones(self):
+        """Aborta con un mensaje claro si hay migraciones sin aplicar."""
+        from django.db import connection
+        from django.db.migrations.executor import MigrationExecutor
+
+        executor = MigrationExecutor(connection)
+        pendientes = executor.migration_plan(executor.loader.graph.leaf_nodes())
+        if pendientes:
+            raise CommandError(
+                "Hay migraciones sin aplicar (la base de datos no está lista). "
+                "Ejecuta primero:  python manage.py migrate"
+            )
 
     def _registrar_fallo(self, mes, anio, etiqueta, playlist_id, playlist_url, track_count, exc):
         """Guarda un ExecutionLog de fallo para tener traza en BBDD."""

@@ -89,7 +89,13 @@ python manage.py generate_monthly_playlist --month 1 --year 2026
 
 # Cambiar el nº de canciones (1-50):
 python manage.py generate_monthly_playlist --limit 50
+
+# Crear aunque ya exista una playlist con ese nombre (por defecto NO duplica):
+python manage.py generate_monthly_playlist --force
 ```
+
+Por defecto, si ya existe una playlist con ese nombre, el comando **no crea otra**
+y sale con un aviso (usa `--force` para duplicarla a propósito).
 
 > **Sobre el "mes anterior":** se calcula con la hora local (`TIME_ZONE` en
 > `core/settings.py`, ahora `Europe/Madrid`). Si vives en otra zona, cámbialo.
@@ -184,6 +190,17 @@ python manage.py runserver
 ```
 
 ---
+
+## 9b. Solución de problemas
+
+- **`no such table: wrap_executionlog`** → no aplicaste las migraciones en esa
+  máquina. Ejecuta `python manage.py migrate`. (La `db.sqlite3` está en
+  `.gitignore`, así que hay que migrar en cada equipo donde copies el proyecto.)
+- **`Hay migraciones sin aplicar`** → lo mismo: `python manage.py migrate`.
+- **Playlists duplicadas** → el comando ya no duplica por defecto; si te quedaron
+  copias de pruebas anteriores, bórralas a mano en Spotify.
+- **`database is locked` (Windows)** → no ejecutes el proyecto desde una carpeta
+  sincronizada por OneDrive/Dropbox; muévelo a una ruta local.
 
 ## 10. Personalizar la portada
 
