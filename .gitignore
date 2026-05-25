@@ -1,0 +1,32 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# === Entornos virtuales ===
+.venv/
+venv/
+env/
+
+# === Django ===
+db.sqlite3
+db.sqlite3-journal
+
+# === Secretos / entorno ===
+.env
+
+# === Caché de tokens de spotipy ===
+.cache
+.cache-*
+
+# === Logs ===
+logs/*.log
+
+# === Portadas generadas para validación ===
+preview.jpg
+previews_12_meses.jpg
+
+# === IDE / SO ===
+.idea/
+.DS_Store

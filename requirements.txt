@@ -1,0 +1,13 @@
+asgiref==3.11.1
+certifi==2026.5.20
+charset-normalizer==3.4.7
+Django==6.0.5
+django-environ==0.13.0
+idna==3.16
+numpy==2.4.6
+pillow==12.2.0
+redis==7.4.0
+requests==2.34.2
+spotipy==2.26.0
+sqlparse==0.5.5
+urllib3==2.7.0
