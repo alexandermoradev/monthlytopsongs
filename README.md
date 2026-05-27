@@ -75,14 +75,14 @@ Scopes usados: `user-top-read`, `playlist-modify-public`,
 ## 7. Uso manual
 
 ```bash
-# Crea la playlist del MES ANTERIOR (privada):
+# Crea la playlist del MES ANTERIOR (pública, visible en tu perfil):
 python manage.py generate_monthly_playlist
 
 # Solo generar la portada para validarla (no toca Spotify ni la BBDD):
 python manage.py generate_monthly_playlist --dry-run   # -> preview.jpg
 
-# Pública:
-python manage.py generate_monthly_playlist --public
+# Privada (no aparece en tu perfil):
+python manage.py generate_monthly_playlist --private
 
 # Forzar un mes concreto (para pruebas):
 python manage.py generate_monthly_playlist --month 1 --year 2026

@@ -4,7 +4,7 @@
 #
 # Hace cd a la carpeta del proyecto (sea cual sea el cwd de cron) y ejecuta el
 # management command con el Python del entorno virtual. Cualquier argumento
-# extra se pasa tal cual (p. ej. ./run_monthly.sh --public).
+# extra se pasa tal cual (p. ej. ./run_monthly.sh --private).
 #
 set -euo pipefail
 

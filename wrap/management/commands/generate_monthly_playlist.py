@@ -4,7 +4,7 @@ Management command: generate_monthly_playlist
 Orquesta el "wrap" mensual:
   1. Calcula el mes anterior a la fecha de ejecución (o el forzado por flags).
   2. Pide a Spotify las top tracks (short_term, 30 por defecto).
-  3. Crea la playlist "<mes> <año>" (privada por defecto) y añade las canciones.
+  3. Crea la playlist "<mes> <año>" (pública por defecto, visible en tu perfil) y añade las canciones.
   4. Genera la portada del mes y la sube.
   5. Registra el resultado en ExecutionLog.
 
@@ -13,7 +13,7 @@ Pensado para lanzarse el día 1 de cada mes vía cron (Linux) o Task Scheduler.
 Ejemplos:
     python manage.py generate_monthly_playlist
     python manage.py generate_monthly_playlist --dry-run          # solo preview.jpg
-    python manage.py generate_monthly_playlist --public
+    python manage.py generate_monthly_playlist --private
     python manage.py generate_monthly_playlist --month 1 --year 2026
 """
 
@@ -39,8 +39,8 @@ class Command(BaseCommand):
             help="Solo genera preview.jpg de la portada; no toca Spotify ni la BBDD.",
         )
         parser.add_argument(
-            "--public", action="store_true",
-            help="Crea la playlist pública (por defecto es privada).",
+            "--private", action="store_true",
+            help="Crea la playlist privada (por defecto es pública y visible en tu perfil).",
         )
         parser.add_argument(
             "--month", type=int, default=None,
@@ -62,7 +62,7 @@ class Command(BaseCommand):
     def handle(self, *args, **opts):
         mes, anio = self._resolver_mes(opts["month"], opts["year"])
         limite = self._validar_limite(opts["limit"])
-        publica = opts["public"]
+        publica = not opts["private"]
         etiqueta = f"{cover_generator.MESES[mes - 1]} {anio}"
 
         logger.info("=== Wrap mensual: %s (dry_run=%s) ===", etiqueta, opts["dry_run"])
