@@ -63,15 +63,18 @@ class Command(BaseCommand):
         mes, anio = self._resolver_mes(opts["month"], opts["year"])
         limite = self._validar_limite(opts["limit"])
         publica = not opts["private"]
-        etiqueta = f"{cover_generator.MESES[mes - 1]} {anio}"
+        mes_nombre = cover_generator.MESES[mes - 1].capitalize()  # "April"
+        periodo = f"{mes_nombre} {anio}"                           # "April 2026" — para logs y descripción
+        # Nombre real de la playlist en Spotify: "April '26 was..." (estilo abierto).
+        etiqueta = f"{mes_nombre} '{anio % 100:02d} was..."
 
-        logger.info("=== Wrap mensual: %s (dry_run=%s) ===", etiqueta, opts["dry_run"])
+        logger.info("=== Wrap mensual: %s (dry_run=%s) ===", periodo, opts["dry_run"])
 
         # --dry-run: solo generamos el preview local y salimos (no toca nada externo).
         if opts["dry_run"]:
             ruta = cover_generator.guardar_preview(mes, anio)
             self.stdout.write(self.style.SUCCESS(
-                f"[dry-run] Portada de '{etiqueta}' en {ruta}. No se ha tocado Spotify ni la BBDD."
+                f"[dry-run] Portada de '{periodo}' en {ruta}. No se ha tocado Spotify ni la BBDD."
             ))
             return
 
@@ -103,7 +106,7 @@ class Command(BaseCommand):
             track_count = len(uris)
 
             descripcion = (
-                f"Tus {track_count} canciones más escuchadas de {etiqueta}. "
+                f"Tus {track_count} canciones más escuchadas de {periodo}. "
                 f"Generada automáticamente."
             )
             playlist = cliente.create_playlist(
